@@ -6,6 +6,7 @@ const bikeSchema = new Schema(
         type: String,
         enum: ["Road bike","Mountain bike","City bike","Electric bike","Gravel bike","Fixie","Other"],
         required: true,
+        default: "Road bike"
       },
       Size: {
         type: String,

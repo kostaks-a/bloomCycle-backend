@@ -12,7 +12,7 @@ router.get("/mybicycles", async (req, res, next) => {
 });
 
 // Get one plant
-router.get("/mybyciles/:bicycleId", async (req, res, next) => {
+router.get("/mybicycles/:bicycleId", async (req, res, next) => {
   try {
     const bicycle = await Bicycle.findById(req.params.bicycleId);
     res.json(bicycle);

@@ -21,8 +21,8 @@ router.get("/mybyciles/:bicycleId", async (req, res, next) => {
   }
 });
 
-// Create a Plant
-router.post("/mybicycles/newbicycle", async (req, res, next) => {
+// Create a bicycle
+router.post("/mybicycles/new", async (req, res, next) => {
   try {
     const body = req.body;
     const newBicycle = await Bicycle.create(body);
@@ -32,10 +32,10 @@ router.post("/mybicycles/newbicycle", async (req, res, next) => {
   }
 });
 
-// Update Plant
+// Update Bicycle
 router.put("/mybicycles/update/:bicycleId", async (req, res, next) => {
   try {
-    const bicycleId = req.params.bicycletId;
+    const bicycleId = req.params.bicycleId;
     const updateBicycleDetails = req.body;
     const updateBicycle = await Bicycle.findByIdAndUpdate(
       bicycleId,

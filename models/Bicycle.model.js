@@ -1,22 +1,22 @@
 const { Schema, model } = require("mongoose");
 
-const bikeSchema = new Schema(
+const bicycleSchema = new Schema(
     {
-      Type: {
+      type: {
         type: String,
         enum: ["Road bike","Mountain bike","City bike","Electric bike","Gravel bike","Fixie","Other"],
         required: true,
         default: "Road bike"
       },
-      Size: {
+      size: {
         type: String,
         required: true,
       },
-      Condition: {
+      condition: {
         type: String,
         required: true,
       },
-      Price: {
+      price: {
         type: Number,
         required: true,
       },
@@ -37,6 +37,6 @@ const bikeSchema = new Schema(
     }
   );
 
-const Bike = model("Bike", bikeSchema);
+const Bicycle = model("Bicycle", bicycleSchema);
 
-module.exports = Bike;
+module.exports = Bicycle;

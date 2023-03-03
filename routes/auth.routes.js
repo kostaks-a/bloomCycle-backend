@@ -8,13 +8,22 @@ const isAuthenticated = require('../middlewares/isAuthenticated');
 router.post('/signup', async (req, res, next) => {
     try {
         const username = req.body.username;
+        const email = req.body.email;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         const salt = bcrypt.genSaltSync(13);
         const passwordHash = bcrypt.hashSync(req.body.password, salt);
-        await User.create({ username: username, passwordHash: passwordHash });
+        if (email === '' || passwordHash === '' || username === ''){
+            res.status(400).json({ errorMessage: "Provide username, email and password" });
+            return;
+        }
+        if (!emailRegex.test(email)) {
+            res.status(400).json({ message: 'Provide a valid email address.' });
+            return;
+        }
+        await User.create({ username: username, passwordHash: passwordHash, email: email });
         res.status(201).json({ message: "User created successfully" });
     } catch (error) {
         console.log("Error signing up: ", error);
-        res.status(400).json({ errorMessage: "Error signing up" });
     }
 })
 

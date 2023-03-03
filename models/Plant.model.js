@@ -7,7 +7,7 @@ const plantSchema = new Schema(
         required: true,
       },
       Size: {
-        type: [String],
+        type: String,
         required: true,
       },
       Age: {

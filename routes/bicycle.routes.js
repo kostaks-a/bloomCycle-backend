@@ -1,3 +1,4 @@
+const isAuthenticated = require("../middlewares/isAuthenticated");
 const Bicycle = require("../models/Bicycle.model");
 const router = require("express").Router();
 
@@ -22,9 +23,10 @@ router.get("/mybicycles/:bicycleId", async (req, res, next) => {
 });
 
 // Create a bicycle
-router.post("/mybicycles/new", async (req, res, next) => {
+router.post("/mybicycles/new", isAuthenticated, async (req, res, next) => {
+  console.log(req.body);
   try {
-    const body = req.body;
+    const body = req.body
     const newBicycle = await Bicycle.create(body);
     res.json(newBicycle);
   } catch (error) {

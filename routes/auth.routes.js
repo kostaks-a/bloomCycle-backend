@@ -17,9 +17,12 @@ router.post('/signup', async (req, res, next) => {
             return;
         }
         if (!emailRegex.test(email)) {
-            res.status(400).json({ message: 'Provide a valid email address.' });
+            res.status(400).json({ errorMessage: 'Provide a valid email address.' });
             return;
         }
+        if (req.body.password.length < 5) {
+            res.status(400).json({errorMessage: 'Password too short'})
+        } 
         await User.create({ username: username, passwordHash: passwordHash, email: email });
         res.status(201).json({ message: "User created successfully" });
     } catch (error) {

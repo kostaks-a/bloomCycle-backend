@@ -1,6 +1,6 @@
 const Plant = require("../models/Plant.model");
 const router = require("express").Router();
-
+const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // Get all plants
 router.get("/myplants", async (req, res, next) => {
@@ -23,7 +23,7 @@ router.get("/myplants", async (req, res, next) => {
   });
   
   // Create a Plant
-  router.post("/myplants/newplant", async (req, res, next) => {
+router.post("/myplants/newplant", isAuthenticated, async (req, res, next) => {
     try {
       const body = req.body;
       const newPlant = await Plant.create(body);
@@ -34,7 +34,7 @@ router.get("/myplants", async (req, res, next) => {
   });
   
   // Update Plant
-  router.put("/myplants/update/:plantId", async (req, res, next) => {
+router.put("/myplants/update/:plantId", isAuthenticated, async (req, res, next) => {
     try {
       const plantId = req.params.plantId;
       const updatePlantDetails = req.body;
@@ -46,7 +46,7 @@ router.get("/myplants", async (req, res, next) => {
   });
   
   // Delete Plant
-  router.delete("/myplants/delete/:plantId/", async (req, res, next) => {
+router.delete("/myplants/delete/:plantId/", isAuthenticated, async (req, res, next) => {
     try {
       const plantId = req.params.plantId;
       const deletedPlant = await Plant.findByIdAndDelete(plantId);

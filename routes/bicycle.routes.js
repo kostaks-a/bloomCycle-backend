@@ -35,7 +35,7 @@ router.post("/mybicycles/new", isAuthenticated, async (req, res, next) => {
 });
 
 // Update Bicycle
-router.put("/mybicycles/update/:bicycleId", async (req, res, next) => {
+router.put("/mybicycles/update/:bicycleId", isAuthenticated, async (req, res, next) => {
   try {
     const bicycleId = req.params.bicycleId;
     const updateBicycleDetails = req.body;
@@ -51,7 +51,7 @@ router.put("/mybicycles/update/:bicycleId", async (req, res, next) => {
 });
 
 // Delete Plant
-router.delete("/mybicycles/delete/:bicycleId/", async (req, res, next) => {
+router.delete("/mybicycles/delete/:bicycleId/", isAuthenticated, async (req, res, next) => {
   try {
     const bicycleId = req.params.bicycleId;
     const deleteBicycle = await Bicycle.findByIdAndDelete(bicycleId);

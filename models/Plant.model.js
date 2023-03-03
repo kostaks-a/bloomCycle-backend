@@ -2,19 +2,19 @@ const { Schema, model } = require("mongoose");
 
 const plantSchema = new Schema(
     {
-      Variety: {
+      variety: {
         type: String,
         required: true,
       },
-      Size: {
+      size: {
         type: String,
         required: true,
       },
-      Age: {
+      age: {
         type: String,
         required: true,
       },
-      Price: {
+      price: {
         type: Number,
         required: true,
       },

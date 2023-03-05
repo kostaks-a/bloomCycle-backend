@@ -4,9 +4,11 @@ const User = require("../models/User.model");
 const router = require("express").Router();
 
 // Get all bicycles
-router.get("/allbicycles", async (req, res, next) => {
+router.get("/allbicycles" , isAuthenticated, async (req, res, next) => {
+  console.log(req.payload.user._id)
   try {
-    const findAllBicycles = await Bicycle.find();
+    const findAllBicycles = await Bicycle.find({ owner: {$ne:req.payload.user._id}});
+    console.log(findAllBicycles)
     res.json(findAllBicycles);
   } catch (error) {
     console.log("Error fetching all bicylces: ", error);
@@ -106,6 +108,19 @@ router.post("/personalAds/:userId" , async (req, res, next) => {
     const personalAds = await Bicycle.find({ owner: userId });
     console.log(personalAds);
     res.json(personalAds);
+  } catch (error) {
+    console.log("Error fetching personal bike ads: ", error);
+  }
+  
+});
+
+router.post("/savedAds/:userId" , async (req, res, next) => {
+  const userId = req.params.userId;
+ // console.log('owner:' + req.payload.user._id);
+  try {
+    const user = await User.findById(userId).populate("savedBikeAds");;
+    console.log(user);
+    res.json(user.savedBikeAds);
   } catch (error) {
     console.log("Error fetching personal bike ads: ", error);
   }

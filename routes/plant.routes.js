@@ -74,6 +74,7 @@ router.get("/allplants", async (req, res, next) => {
    }
   })
 
+// Remove saved plant ad
 
   router.get("/:plantId/remove", isAuthenticated , async (req, res) => {
     const userId = req.payload.user._id
@@ -83,7 +84,12 @@ router.get("/allplants", async (req, res, next) => {
     try {
       const userUpdate = await User.findByIdAndUpdate(userId, { $pull: { savedPlantAds : plantId } }, {new: true})
       console.log(userUpdate)
-      console.log(`Ad saved`)
-    } catch (error) {console.log(error)}})
+      console.log(`Ad unsaved successfully`)
+    } catch (error) {
+      console.log("Error unsaving ad: ", error);
+    }})
+
+
+
 
   module.exports = router;

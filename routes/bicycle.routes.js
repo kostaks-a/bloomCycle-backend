@@ -64,4 +64,38 @@ router.get("/delete/:bicycleId", async (req, res, next) => {
   }
 });
 
+
+// Save Bike ad to User model
+
+router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
+  try {
+   const userId = req.payload.user._id
+   const bikeId = req.params.bikeId
+   console.log(bikeId)
+   const userUpdate = await User.findByIdAndUpdate(userId, { $push: { savedBikeAds : bikeId } }, {new: true})
+   console.log(userUpdate)
+   console.log(`Ad saved`)
+  } catch (error) {
+   console.log("Error saving ad: ", error);
+  }
+ })
+
+// Remove saved plant ad from User model
+
+ router.get("/:bikeId/remove", isAuthenticated , async (req, res) => {
+   const userId = req.payload.user._id
+   const bikeId = req.params.bikeId;
+   console.log(req.params.bikeId)
+   console.log(req.payload.user._id)
+   try {
+     const userUpdate = await User.findByIdAndUpdate(userId, { $pull: { savedBikeAds : bikeId } }, {new: true})
+     console.log(userUpdate)
+     console.log(`Ad unsaved successfully`)
+   } catch (error) {
+    console.log("Error unsaving ad: ", error);
+  }})
+
+
+
+
 module.exports = router;

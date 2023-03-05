@@ -19,7 +19,15 @@ const userSchema = new Schema(
     passwordHash: {
       type: String,
       required: [true, 'Password is required.']
-    }
+    },
+    savedPlantAds: [{
+      type: Schema.Types.ObjectId,
+      ref: "Plant"
+    }],
+    savedBikeAds: [{
+      type: Schema.Types.ObjectId,
+      ref: "Bicycle"
+    }],
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    

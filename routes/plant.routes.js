@@ -75,6 +75,7 @@ router.get("/allplants", async (req, res, next) => {
   })
 
 
+
   router.get("/:plantId/remove", isAuthenticated , async (req, res) => {
     const userId = req.payload.user._id
     const plantId = req.params.plantId;

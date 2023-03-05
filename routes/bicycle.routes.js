@@ -97,5 +97,19 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
 
 
 
+// Get personal ads
+
+router.post("/personalAds/:userId" , async (req, res, next) => {
+  const userId = req.params.userId;
+ // console.log('owner:' + req.payload.user._id);
+  try {
+    const personalAds = await Bicycle.find({ owner: userId });
+    console.log(personalAds);
+    res.json(personalAds);
+  } catch (error) {
+    console.log("Error fetching personal bike ads: ", error);
+  }
+  
+});
 
 module.exports = router;

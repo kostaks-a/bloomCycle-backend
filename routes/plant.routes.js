@@ -89,7 +89,19 @@ router.get("/allplants", async (req, res, next) => {
       console.log("Error unsaving ad: ", error);
     }})
 
+// Get personal ads
 
-
+    router.post("/personalAds/:userId" , async (req, res, next) => {
+      const userId = req.params.userId;
+     // console.log('owner:' + req.payload.user._id);
+      try {
+        const personalAds = await Plant.find({ owner: userId });
+        console.log(personalAds);
+        res.json(personalAds);
+      } catch (error) {
+        console.log("Error fetching personal plant ads: ", error);
+      }
+      
+    });
 
   module.exports = router;

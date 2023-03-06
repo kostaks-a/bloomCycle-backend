@@ -122,7 +122,7 @@ router.post("/savedAds/:userId" , async (req, res, next) => {
     console.log(user);
     res.json(user.savedBikeAds);
   } catch (error) {
-    console.log("Error fetching personal bike ads: ", error);
+    console.log("Error fetching saved bike ads: ", error);
   }
   
 });

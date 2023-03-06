@@ -104,4 +104,17 @@ router.get("/allplants", async (req, res, next) => {
       
     });
 
+    router.post("/savedAds/:userId" , async (req, res, next) => {
+      const userId = req.params.userId;
+     // console.log('owner:' + req.payload.user._id);
+      try {
+        const user = await User.findById(userId).populate("savedPlantAds");;
+        console.log(user);
+        res.json(user.savedPlantAds);
+      } catch (error) {
+        console.log("Error fetching saved plant ads: ", error);
+      }
+      
+    });
+
   module.exports = router;

@@ -1,8 +1,10 @@
+const isAuthenticated = require("../middlewares/isAuthenticated");
 const Plant = require("../models/Plant.model");
+const User = require("../models/User.model");
 const router = require("express").Router();
 
 // Get all plants
-router.get("/myplants", async (req, res, next) => {
+router.get("/allplants", async (req, res, next) => {
   try {
     const findAllPlants = await Plant.find();
     res.json(findAllPlants);
@@ -12,7 +14,7 @@ router.get("/myplants", async (req, res, next) => {
 });
 
 // Get one plant
-router.get("/myplants/:plantId", async (req, res, next) => {
+router.get("/:plantId", async (req, res, next) => {
   try {
     const plant = await Plant.findById(req.params.plantId);
     res.json(plant);
@@ -22,18 +24,46 @@ router.get("/myplants/:plantId", async (req, res, next) => {
 });
 
 // Create a Plant
-router.post("/myplants/newplant", async (req, res, next) => {
+router.post("/newplant", isAuthenticated, async (req, res, next) => {
+  const { variety, size, age, price, description, image, owner } = req.body;
   try {
-    const body = req.body;
-    const newPlant = await Plant.create(body);
-    res.json(newPlant);
-  } catch (error) {
-    console.log("Error creating a plant ", error);
-  }
+    if (image) {
+      const uploadRes = await cloudinary.uploader.upload(image, {
+        upload_preset: "cimzqsjx",
+      });
+
+      if (uploadRes) {
+        const plant = new Plant({
+          variety,
+          size,
+          age,
+          price,
+          description,
+          image,
+          owner: req.payload.user._id,
+        });
+        const savedPlant = await plant.save();
+        req.status(200).send(savedPlant);
+      }
+    }
+  } catch (error) {}
 });
+// router.post("/newplant", isAuthenticated, async (req, res, next) => {
+//   try {
+//     const body = req.body;
+//     const newPlant = await Plant.create({
+//       ...body,
+//       owner: req.payload.user._id,
+//     });
+//     res.json(newPlant);
+//   } catch (error) {
+//     console.log("Error creating a plant ", error);
+//   }
+// });
 
 // Update Plant
-router.put("/myplants/update/:plantId", async (req, res, next) => {
+router.put("/update/:plantId", async (req, res, next) => {
+  console.log(req.params.plantId);
   try {
     const plantId = req.params.plantId;
     const updatePlantDetails = req.body;
@@ -49,13 +79,78 @@ router.put("/myplants/update/:plantId", async (req, res, next) => {
 });
 
 // Delete Plant
-router.delete("/myplants/delete/:plantId/", async (req, res, next) => {
+router.get("/delete/:plantId", async (req, res, next) => {
   try {
     const plantId = req.params.plantId;
     const deletedPlant = await Plant.findByIdAndDelete(plantId);
     res.json(deletedPlant);
   } catch (error) {
     console.log("Error deleting a plant: ", error);
+  }
+});
+
+// Save Plant ad
+
+router.get("/:plantId/save", isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.payload.user._id;
+    const plantId = req.params.plantId;
+    console.log(plantId);
+    const userUpdate = await User.findByIdAndUpdate(
+      userId,
+      { $push: { savedPlantAds: plantId } },
+      { new: true }
+    );
+    console.log(userUpdate);
+    console.log(`Ad saved`);
+  } catch (error) {
+    console.log("Error saving ad: ", error);
+  }
+});
+
+// Remove saved plant ad
+
+router.get("/:plantId/remove", isAuthenticated, async (req, res) => {
+  const userId = req.payload.user._id;
+  const plantId = req.params.plantId;
+  console.log(req.params.plantId);
+  console.log(req.payload.user._id);
+  try {
+    const userUpdate = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { savedPlantAds: plantId } },
+      { new: true }
+    );
+    console.log(userUpdate);
+    console.log(`Ad unsaved successfully`);
+  } catch (error) {
+    console.log("Error unsaving ad: ", error);
+  }
+});
+
+// Get personal ads
+
+router.post("/personalAds/:userId", async (req, res, next) => {
+  const userId = req.params.userId;
+  // console.log('owner:' + req.payload.user._id);
+  try {
+    const personalAds = await Plant.find({ owner: userId });
+    console.log(personalAds);
+    res.json(personalAds);
+  } catch (error) {
+    console.log("Error fetching personal plant ads: ", error);
+  }
+});
+
+router.post("/savedAds/:userId", async (req, res, next) => {
+  const userId = req.params.userId;
+  // console.log('owner:' + req.payload.user._id);
+  try {
+    const user = await User.findById(userId).populate("savedPlantAds");
+    console.log(user);
+    res.json(user.savedPlantAds);
+  } catch (error) {
+    console.log("Error fetching saved plant ads: ", error);
   }
 });
 

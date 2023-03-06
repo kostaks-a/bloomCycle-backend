@@ -2,6 +2,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Plant = require("../models/Plant.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
+const uploader = require("../utils/cloudinary");
 
 // Get all plants
 router.get("/allplants", async (req, res, next) => {
@@ -24,59 +25,47 @@ router.get("/:plantId", async (req, res, next) => {
 });
 
 // Create a Plant
-router.post("/newplant", isAuthenticated, async (req, res, next) => {
-  const { variety, size, age, price, description, image, owner } = req.body;
-  try {
-    if (image) {
-      const uploadRes = await cloudinary.uploader.upload(image, {
-        upload_preset: "cimzqsjx",
-      });
 
-      if (uploadRes) {
-        const plant = new Plant({
-          variety,
-          size,
-          age,
-          price,
-          description,
-          image,
-          owner: req.payload.user._id,
-        });
-        const savedPlant = await plant.save();
-        req.status(200).send(savedPlant);
-      }
+router.post(
+  "/newplant",
+  uploader.single("imageUrl"),
+  isAuthenticated,
+  async (req, res, next) => {
+    console.log("file is: ", req.file);
+    if (!req.file) {
+      res.status(200).json({ message: "no image" });
+    } else {
+      const newPlant = await Plant.create({
+        ...req.body,
+        image: req.file.path,
+        owner: req.payload.user._id,
+      });
+      console.log(newPlant);
+      res.status(200).json(newPlant);
     }
-  } catch (error) {}
-});
-// router.post("/newplant", isAuthenticated, async (req, res, next) => {
-//   try {
-//     const body = req.body;
-//     const newPlant = await Plant.create({
-//       ...body,
-//       owner: req.payload.user._id,
-//     });
-//     res.json(newPlant);
-//   } catch (error) {
-//     console.log("Error creating a plant ", error);
-//   }
-// });
+  }
+);
 
 // Update Plant
-router.put("/update/:plantId", async (req, res, next) => {
-  console.log(req.params.plantId);
-  try {
-    const plantId = req.params.plantId;
-    const updatePlantDetails = req.body;
-    const updatePlant = await Plant.findByIdAndUpdate(
-      plantId,
-      updatePlantDetails,
-      { new: true }
-    );
-    res.json(updatePlant);
-  } catch (error) {
-    console.log("Error updating plant: ", error);
+router.put(
+  "/update/:plantId",
+  uploader.single("imageUrl"),
+  async (req, res, next) => {
+    try {
+      const plantId = req.params.plantId;
+      const updatePlantDetails = { ...req.body, image: req.file.path };
+      const updatePlant = await Plant.findByIdAndUpdate(
+        plantId,
+        updatePlantDetails,
+
+        { new: true }
+      );
+      res.json(updatePlant);
+    } catch (error) {
+      console.log("Error updating plant: ", error);
+    }
   }
-});
+);
 
 // Delete Plant
 router.get("/delete/:plantId", async (req, res, next) => {

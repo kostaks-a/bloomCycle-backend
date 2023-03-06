@@ -2,7 +2,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Plant = require("../models/Plant.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
-
+const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // Get all plants
 router.get("/allplants", async (req, res, next) => {

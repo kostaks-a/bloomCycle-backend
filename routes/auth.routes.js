@@ -67,4 +67,36 @@ router.post('/verify', isAuthenticated, (req, res, next) => {
     }
 })
 
+
+// Update profile route
+router.put("/update", async (req, res, next) => {
+    console.log(req.body);
+    const updatedUsername = req.body.username;
+    const updatedEmail = req.body.email;
+    const updatedPassword = req.body.password;
+
+    try {
+        await User.findOneAndUpdate(
+            { id: req.params._id },
+            { username: updatedUsername, email: updatedEmail, password: updatedPassword }
+        );
+        res.status(200).json({ message: "Profile updated successfully!" });
+    } catch (error) {
+        console.log("Error updating user info: ", error);
+        res.status(500).json({ errorMessage: "Error updating user info" });
+    }
+});
+
+// Delete profile route
+
+router.delete("/profile", async (req, res, next) => {
+    try {
+        await User.findByIdAndDelete(req.user._id);
+        res.json({ message: "Profile deleted successfully!" });
+        res.status(200).json({ errorMessage: "Profile deleted sucessfully" });
+    } catch (error) {
+        console.log("Error deleting profile: ", error);
+        res.status(500).json({ errorMessage: "Error deleting profile" });
+    }
+});
 module.exports = router

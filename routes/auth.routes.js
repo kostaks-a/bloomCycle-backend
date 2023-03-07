@@ -62,7 +62,7 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/verify', isAuthenticated, (req, res, next) => {
     if (req.payload) {
-        //console.log("PAYLOAD: ", req.payload);
+        console.log("PAYLOAD: ", req.payload);
         res.json(req.payload.user);
     }
 })

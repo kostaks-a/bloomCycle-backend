@@ -2,6 +2,7 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Bicycle = require("../models/Bicycle.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
+const uploader = require("../utils/cloudinary");
 
 // Get all bicycles
 router.get("/allbicycles" , isAuthenticated, async (req, res, next) => {
@@ -26,34 +27,47 @@ router.get("/:bicycleId", isAuthenticated, async (req, res, next) => {
   }
 });
 
-// Create a bicycle
-router.post("/newbicycle", isAuthenticated, async (req, res, next) => {
-  //console.log('owner:' + req.payload.user._id);
-  try {
-    const body = req.body
-    const newBicycle = await Bicycle.create({...body, owner: req.payload.user._id});
-    res.json(newBicycle);
-  } catch (error) {
-    console.log("Error creating a bicycle ", error);
+//Create a bicycle
+router.post(
+  "/newbicycle",
+  uploader.single("imageUrl"),
+  isAuthenticated,
+  async (req, res, next) => {
+    console.log("file is: ", req.file);
+    if (!req.file) {
+      res.status(200).json({ message: "no image" });
+    } else {
+      const newBicycle = await Bicycle.create({
+        ...req.body,
+        image: req.file.path,
+        owner: req.payload.user._id,
+      });
+      console.log(newBicycle);
+      res.status(200).json(newBicycle);
+    }
   }
-});
+);
 
-// Update Bicycle
-router.put("/update/:bicycleId", isAuthenticated, async (req, res, next) => {
-  try {
-    const bicycleId = req.params.bicycleId;
-    const updateBicycleDetails = req.body;
-    const updateBicycle = await Bicycle.findByIdAndUpdate(
-      bicycleId,
-      updateBicycleDetails,
-      { new: true }
-    );
-    console.log('bike updated')
-    res.json(updateBicycle);
-  } catch (error) {
-    console.log("Error updating character: ", error);
+//Update Bicycle
+router.put(
+  "/update/:bicycleId",
+  uploader.single("imageUrl"),
+  async (req, res, next) => {
+    try {
+      const bicycleId = req.params.bicycleId;
+      const updateBicycleDetails = { ...req.body, image: req.file.path };
+      const updateBicycle = await Bicycle.findByIdAndUpdate(
+        bicycleId,
+        updateBicycleDetails,
+
+        { new: true }
+      );
+      res.json(updateBicycle);
+    } catch (error) {
+      console.log("Error updating bicycle: ", error);
+    }
   }
-});
+);
 
 // Delete Plant
 router.get("/delete/:bicycleId", isAuthenticated, async (req, res, next) => {
@@ -66,10 +80,9 @@ router.get("/delete/:bicycleId", isAuthenticated, async (req, res, next) => {
   }
 });
 
-
 // Save Bike ad to User model
 
-router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
+router.get("/:bikeId/save", isAuthenticated, async (req, res) => {
   try {
    const userId = req.payload.user._id
    const bikeId = req.params.bikeId
@@ -83,9 +96,9 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
     res.json("Plant already saved")
   }
   } catch (error) {
-   console.log("Error saving ad: ", error);
+    console.log("Error saving ad: ", error);
   }
- })
+});
 
 // Remove saved plant ad from User model
 
@@ -100,15 +113,14 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
      res.json(`Ad unsaved successfully`);
    } catch (error) {
     console.log("Error unsaving ad: ", error);
-  }})
-
-
+  }
+});
 
 // Get personal ads
 
 router.get("/personalAds/:userId" ,  async (req, res, next) => {
   const userId = req.params.userId;
- // console.log('owner:' + req.payload.user._id);
+  // console.log('owner:' + req.payload.user._id);
   try {
     const personalAds = await Bicycle.find({ owner: userId });
     //console.log(personalAds);
@@ -116,12 +128,11 @@ router.get("/personalAds/:userId" ,  async (req, res, next) => {
   } catch (error) {
     console.log("Error fetching personal bike ads: ", error);
   }
-  
 });
 
 router.get("/savedAds/:userId" ,  async (req, res, next) => {
   const userId = req.params.userId;
- // console.log('owner:' + req.payload.user._id);
+  // console.log('owner:' + req.payload.user._id);
   try {
     const user = await User.findById(userId).populate("savedBikeAds");;
     //user.savedBikeAds.populate('owner' , 'username');
@@ -130,7 +141,6 @@ router.get("/savedAds/:userId" ,  async (req, res, next) => {
   } catch (error) {
     console.log("Error fetching saved bike ads: ", error);
   }
-  
 });
 
 module.exports = router;

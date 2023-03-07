@@ -2,63 +2,83 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Plant = require("../models/Plant.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
+const uploader = require("../utils/cloudinary");
 
 // Get all plants
 router.get("/allplants", isAuthenticated , async (req, res, next) => {
-    try {
-      const findAllPlants = await Plant.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username');
+  try {
+    const findAllPlants = await Plant.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username');
       //console.log(findAllPlants);
-      res.json(findAllPlants);
-    } catch (error) {
-      console.log("Error fetching plants: ", error);
-    }
-  });
-  
-  // Get one plant
-  router.get("/:plantId", isAuthenticated, async (req, res, next) => {
-    try {
-      const plant = await Plant.findById(req.params.plantId);
-      res.json(plant);
-    } catch (error) {
-      console.log("Error fetching plant: ", error);
-    }
-  });
-  
-  // Create a Plant
-  router.post("/newplant", isAuthenticated , async (req, res, next) => {
-    try {
-      const body = req.body;
-      const newPlant = await Plant.create({...body, owner: req.payload.user._id})
+    res.json(findAllPlants);
+  } catch (error) {
+    console.log("Error fetching plants: ", error);
+  }
+});
+
+// Get one plant
+router.get("/:plantId", isAuthenticated, async (req, res, next) => {
+  try {
+    const plant = await Plant.findById(req.params.plantId);
+    res.json(plant);
+  } catch (error) {
+    console.log("Error fetching plant: ", error);
+  }
+});
+
+// Create a Plant
+
+router.post(
+  "/newplant",
+  uploader.single("imageUrl"),
+  isAuthenticated,
+  async (req, res, next) => {
+    console.log("file is: ", req.file);
+    if (!req.file) {
+      res.status(200).json({ message: "no image" });
+    } else {
+      const newPlant = await Plant.create({
+        ...req.body,
+        image: req.file.path,
+        owner: req.payload.user._id,
+      })
       newPlant.populate('owner' , 'username');
-      res.json(newPlant);
-    } catch (error) {
-      console.log("Error creating a plant ", error);
+      console.log(newPlant);
+      res.status(200).json(newPlant);
     }
-  });
-  
-  // Update Plant
-  router.put("/update/:plantId", isAuthenticated, async (req, res, next) => {
-    console.log(req.params.plantId);
+  }
+);
+
+// Update Plant
+router.put(
+  "/update/:plantId",
+  uploader.single("imageUrl"),
+  async (req, res, next) => {
     try {
       const plantId = req.params.plantId;
-      const updatePlantDetails = req.body;
-      const updatePlant = await Plant.findByIdAndUpdate(plantId, updatePlantDetails, { new: true });
+      const updatePlantDetails = { ...req.body, image: req.file.path };
+      const updatePlant = await Plant.findByIdAndUpdate(
+        plantId,
+        updatePlantDetails,
+
+        { new: true }
+      );
       res.json(updatePlant);
     } catch (error) {
       console.log("Error updating plant: ", error);
     }
-  });
-  
-  // Delete Plant
-  router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
-    try {
-      const plantId = req.params.plantId;
-      const deletedPlant = await Plant.findByIdAndDelete(plantId);
-      res.json(deletedPlant);
-    } catch (error) {
-      console.log("Error deleting a plant: ", error);
-    }
-  });
+  }
+);
+
+// Delete Plant
+router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
+  try {
+    const plantId = req.params.plantId;
+    const deletedPlant = await Plant.findByIdAndDelete(plantId);
+    res.json(deletedPlant);
+  } catch (error) {
+    console.log("Error deleting a plant: ", error);
+  }
+});
 
 // Save Plant ad
 
@@ -80,8 +100,8 @@ router.get("/allplants", isAuthenticated , async (req, res, next) => {
     }
    } catch (error) {
     console.log("Error saving ad: ", error);
-   }
-  })
+  }
+});
 
 // Remove saved plant ad
 
@@ -128,4 +148,4 @@ router.get("/allplants", isAuthenticated , async (req, res, next) => {
       
     });
 
-  module.exports = router;
+module.exports = router;

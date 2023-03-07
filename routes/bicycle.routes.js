@@ -5,10 +5,10 @@ const router = require("express").Router();
 
 // Get all bicycles
 router.get("/allbicycles" , isAuthenticated, async (req, res, next) => {
-  console.log(req.payload.user._id)
+  //console.log(req.payload.user._id)
   try {
-    const findAllBicycles = await Bicycle.find({ owner: {$ne:req.payload.user._id}});
-    console.log(findAllBicycles)
+    const findAllBicycles = await Bicycle.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username');
+    //console.log(findAllBicycles)
     res.json(findAllBicycles);
   } catch (error) {
     console.log("Error fetching all bicylces: ", error);
@@ -16,7 +16,7 @@ router.get("/allbicycles" , isAuthenticated, async (req, res, next) => {
 });
 
 // Get one plant
-router.get("/:bicycleId", async (req, res, next) => {
+router.get("/:bicycleId", isAuthenticated, async (req, res, next) => {
   try {
     //console.log(req.params);
     const bicycle = await Bicycle.findById(req.params.bicycleId);
@@ -28,7 +28,7 @@ router.get("/:bicycleId", async (req, res, next) => {
 
 // Create a bicycle
 router.post("/newbicycle", isAuthenticated, async (req, res, next) => {
-  console.log('owner:' + req.payload.user._id);
+  //console.log('owner:' + req.payload.user._id);
   try {
     const body = req.body
     const newBicycle = await Bicycle.create({...body, owner: req.payload.user._id});
@@ -39,7 +39,7 @@ router.post("/newbicycle", isAuthenticated, async (req, res, next) => {
 });
 
 // Update Bicycle
-router.put("/update/:bicycleId", async (req, res, next) => {
+router.put("/update/:bicycleId", isAuthenticated, async (req, res, next) => {
   try {
     const bicycleId = req.params.bicycleId;
     const updateBicycleDetails = req.body;
@@ -56,7 +56,7 @@ router.put("/update/:bicycleId", async (req, res, next) => {
 });
 
 // Delete Plant
-router.get("/delete/:bicycleId", async (req, res, next) => {
+router.get("/delete/:bicycleId", isAuthenticated, async (req, res, next) => {
   try {
     const bicycleId = req.params.bicycleId;
     const deleteBicycle = await Bicycle.findByIdAndDelete(bicycleId);
@@ -73,10 +73,15 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
   try {
    const userId = req.payload.user._id
    const bikeId = req.params.bikeId
-   console.log(bikeId)
+   const user = await User.findById(userId)
+   if (!user.savedBikeAds.includes(bikeId)) {
    const userUpdate = await User.findByIdAndUpdate(userId, { $push: { savedBikeAds : bikeId } }, {new: true})
    console.log(userUpdate)
    console.log(`Ad saved`)
+   res.json(`Ad saved successfully`)
+  }else {
+    res.json("Plant already saved")
+  }
   } catch (error) {
    console.log("Error saving ad: ", error);
   }
@@ -87,12 +92,12 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
  router.get("/:bikeId/remove", isAuthenticated , async (req, res) => {
    const userId = req.payload.user._id
    const bikeId = req.params.bikeId;
-   console.log(req.params.bikeId)
-   console.log(req.payload.user._id)
+   const user = await User.findById(userId)
    try {
      const userUpdate = await User.findByIdAndUpdate(userId, { $pull: { savedBikeAds : bikeId } }, {new: true})
-     console.log(userUpdate)
+     console.log(userUpdate)   
      console.log(`Ad unsaved successfully`)
+     res.json(`Ad unsaved successfully`);
    } catch (error) {
     console.log("Error unsaving ad: ", error);
   }})
@@ -101,12 +106,12 @@ router.get('/:bikeId/save', isAuthenticated , async (req, res) => {
 
 // Get personal ads
 
-router.post("/personalAds/:userId" , async (req, res, next) => {
+router.get("/personalAds/:userId" ,  async (req, res, next) => {
   const userId = req.params.userId;
  // console.log('owner:' + req.payload.user._id);
   try {
     const personalAds = await Bicycle.find({ owner: userId });
-    console.log(personalAds);
+    //console.log(personalAds);
     res.json(personalAds);
   } catch (error) {
     console.log("Error fetching personal bike ads: ", error);
@@ -114,12 +119,13 @@ router.post("/personalAds/:userId" , async (req, res, next) => {
   
 });
 
-router.post("/savedAds/:userId" , async (req, res, next) => {
+router.get("/savedAds/:userId" ,  async (req, res, next) => {
   const userId = req.params.userId;
  // console.log('owner:' + req.payload.user._id);
   try {
     const user = await User.findById(userId).populate("savedBikeAds");;
-    console.log(user);
+    //user.savedBikeAds.populate('owner' , 'username');
+    //console.log(user);
     res.json(user.savedBikeAds);
   } catch (error) {
     console.log("Error fetching saved bike ads: ", error);

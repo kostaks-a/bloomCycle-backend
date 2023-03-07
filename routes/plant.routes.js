@@ -2,12 +2,12 @@ const isAuthenticated = require("../middlewares/isAuthenticated");
 const Plant = require("../models/Plant.model");
 const User = require("../models/User.model");
 const router = require("express").Router();
-const isAuthenticated = require("../middlewares/isAuthenticated");
 
 // Get all plants
-router.get("/allplants", async (req, res, next) => {
+router.get("/allplants", isAuthenticated , async (req, res, next) => {
     try {
-      const findAllPlants = await Plant.find();
+      const findAllPlants = await Plant.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username');
+      //console.log(findAllPlants);
       res.json(findAllPlants);
     } catch (error) {
       console.log("Error fetching plants: ", error);
@@ -15,7 +15,7 @@ router.get("/allplants", async (req, res, next) => {
   });
   
   // Get one plant
-  router.get("/:plantId", async (req, res, next) => {
+  router.get("/:plantId", isAuthenticated, async (req, res, next) => {
     try {
       const plant = await Plant.findById(req.params.plantId);
       res.json(plant);
@@ -28,7 +28,8 @@ router.get("/allplants", async (req, res, next) => {
   router.post("/newplant", isAuthenticated , async (req, res, next) => {
     try {
       const body = req.body;
-      const newPlant = await Plant.create({...body, owner: req.payload.user._id});
+      const newPlant = await Plant.create({...body, owner: req.payload.user._id})
+      newPlant.populate('owner' , 'username');
       res.json(newPlant);
     } catch (error) {
       console.log("Error creating a plant ", error);
@@ -36,7 +37,7 @@ router.get("/allplants", async (req, res, next) => {
   });
   
   // Update Plant
-  router.put("/update/:plantId", async (req, res, next) => {
+  router.put("/update/:plantId", isAuthenticated, async (req, res, next) => {
     console.log(req.params.plantId);
     try {
       const plantId = req.params.plantId;
@@ -49,7 +50,7 @@ router.get("/allplants", async (req, res, next) => {
   });
   
   // Delete Plant
-  router.get("/delete/:plantId", async (req, res, next) => {
+  router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
     try {
       const plantId = req.params.plantId;
       const deletedPlant = await Plant.findByIdAndDelete(plantId);
@@ -65,10 +66,18 @@ router.get("/allplants", async (req, res, next) => {
    try {
     const userId = req.payload.user._id
     const plantId = req.params.plantId
-    console.log(plantId)
+    const user = await User.findById(userId)
+    //console.log(user)
+    console.log(user.savedPlantAds)
+    if (!user.savedPlantAds.includes(plantId)) {
     const userUpdate = await User.findByIdAndUpdate(userId, { $push: { savedPlantAds : plantId } }, {new: true})
     console.log(userUpdate)
     console.log(`Ad saved`)
+    res.json(`Ad saved successfully`)
+    }else {
+      console.log("Plant already saved")
+      res.json("Plant already saved")
+    }
    } catch (error) {
     console.log("Error saving ad: ", error);
    }
@@ -83,20 +92,21 @@ router.get("/allplants", async (req, res, next) => {
     console.log(req.payload.user._id)
     try {
       const userUpdate = await User.findByIdAndUpdate(userId, { $pull: { savedPlantAds : plantId } }, {new: true})
-      console.log(userUpdate)
+      console.log(userUpdate)   
       console.log(`Ad unsaved successfully`)
+      res.json(`Ad unsaved successfully`);
     } catch (error) {
       console.log("Error unsaving ad: ", error);
     }})
 
 // Get personal ads
 
-    router.post("/personalAds/:userId" , async (req, res, next) => {
+    router.get("/personalAds/:userId" , async (req, res, next) => {
       const userId = req.params.userId;
      // console.log('owner:' + req.payload.user._id);
       try {
         const personalAds = await Plant.find({ owner: userId });
-        console.log(personalAds);
+        //console.log(personalAds);
         res.json(personalAds);
       } catch (error) {
         console.log("Error fetching personal plant ads: ", error);
@@ -104,12 +114,13 @@ router.get("/allplants", async (req, res, next) => {
       
     });
 
-    router.post("/savedAds/:userId" , async (req, res, next) => {
+    router.get("/savedAds/:userId" , async (req, res, next) => {
       const userId = req.params.userId;
      // console.log('owner:' + req.payload.user._id);
       try {
-        const user = await User.findById(userId).populate("savedPlantAds");;
-        console.log(user);
+        const user = await User.findById(userId).populate("savedPlantAds");
+        //user.savedPlantAds.populate('owner' , 'username');
+        //console.log(user);
         res.json(user.savedPlantAds);
       } catch (error) {
         console.log("Error fetching saved plant ads: ", error);

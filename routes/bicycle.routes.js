@@ -71,22 +71,6 @@ router.put(
   }
 );
 
-// router.put("/update/:bicycleId", async (req, res, next) => {
-//   try {
-//     const bicycleId = req.params.bicycleId;
-//     const updateBicycleDetails = req.body;
-//     const updateBicycle = await Bicycle.findByIdAndUpdate(
-//       bicycleId,
-//       updateBicycleDetails,
-//       { new: true }
-//     );
-//     console.log("bike updated");
-//     res.json(updateBicycle);
-//   } catch (error) {
-//     console.log("Error updating character: ", error);
-//   }
-// });
-
 // Delete Plant
 router.get("/delete/:bicycleId", async (req, res, next) => {
   try {

@@ -43,7 +43,8 @@ router.post(
         owner: req.payload.user._id,
       });
       console.log(newBicycle);
-      res.status(200).json(newBicycle);
+      res.json("bike created")
+     // res.status(200).json('bike create' , newBicycle);
     }
   }
 );

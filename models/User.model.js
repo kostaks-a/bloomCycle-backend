@@ -20,6 +20,18 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Password is required.']
     },
+    location: {
+      type: String,
+      required: true
+    },
+    phoneNumber: {
+      type: Number,
+      required: true
+    },
+    image: {
+      type: String,
+      default: ''
+    },  
     savedPlantAds: [{
       type: Schema.Types.ObjectId,
       ref: "Plant"

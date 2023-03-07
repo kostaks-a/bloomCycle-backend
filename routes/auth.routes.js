@@ -69,16 +69,18 @@ router.post('/verify', isAuthenticated, (req, res, next) => {
 
 
 // Update profile route
-router.put("/update", async (req, res, next) => {
+router.put("/update", isAuthenticated, async (req, res, next) => {
     console.log(req.body);
     const updatedUsername = req.body.username;
     const updatedEmail = req.body.email;
     const updatedPassword = req.body.password;
+    const updatedPhoneNumber = req.body.phoneNumber;
+    const updatedLocation = req.body.location;
 
     try {
-        await User.findOneAndUpdate(
-            { id: req.params._id },
-            { username: updatedUsername, email: updatedEmail, password: updatedPassword }
+        await User.findByIdAndUpdate(
+            req.payload.user._id,
+            { username: updatedUsername, email: updatedEmail, password: updatedPassword, phoneNumber: updatedPhoneNumber, location: updatedLocation }, { new: true }
         );
         res.status(200).json({ message: "Profile updated successfully!" });
     } catch (error) {
@@ -89,7 +91,7 @@ router.put("/update", async (req, res, next) => {
 
 // Delete profile route
 
-router.delete("/profile", async (req, res, next) => {
+router.delete("/profile", isAuthenticated, async (req, res, next) => {
     try {
         await User.findByIdAndDelete(req.user._id);
         res.json({ message: "Profile deleted successfully!" });

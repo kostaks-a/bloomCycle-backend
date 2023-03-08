@@ -48,21 +48,29 @@ router.post(
   }
 );
 
-// Update Plant
-router.put(
-  "/update/:plantId",
-  uploader.single("imageUrl"),
-  async (req, res, next) => {
-    try {
-      const plantId = req.params.plantId;
-      const updatePlantDetails = { ...req.body, image: req.file.path };
-      const updatePlant = await Plant.findByIdAndUpdate(
-        plantId,
-        updatePlantDetails,
 
-        { new: true }
-      );
-      res.json(updatePlant);
+// Update Plant
+router.put("/update/:plantId",uploader.single("imageUrl"), isAuthenticated, async (req, res, next) => {
+  const plantId = req.params.plantId;
+    try {
+      if (!req.file) {
+        const updatePlantDetails = {...req.body};
+        const updatePlant = await Plant.findByIdAndUpdate(
+          plantId,
+          updatePlantDetails,
+          { new: true }
+        );
+        res.json(updatePlant);
+      }else{
+        const updatePlantDetails = {...req.body, image: req.file.path };
+        const updatePlant = await Plant.findByIdAndUpdate(
+          plantId,
+          updatePlantDetails,
+          { new: true }
+        );
+        res.json(updatePlant);
+      }      
+      
     } catch (error) {
       console.log("Error updating plant: ", error);
     }

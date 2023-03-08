@@ -52,20 +52,23 @@ router.post(
 
 //Update Bicycle
 router.put(
-  "/update/:bicycleId",
-  uploader.single("imageUrl"),
-  async (req, res, next) => {
-    //console.log(req.file.path)
+  "/update/:bicycleId", uploader.single("imageUrl"), async (req, res, next) => {
+    console.log("file is: ", req.file);
+    const bicycleId = req.params.bicycleId;
     try {
-      const bicycleId = req.params.bicycleId;
-      const updateBicycleDetails = { ...req.body, image: req.file.path };
-      const updateBicycle = await Bicycle.findByIdAndUpdate(
+     if (!req.file) {
+       const updateBicycleDetails = { ...req.body};
+       const updateBicycle = await Bicycle.findByIdAndUpdate(bicycleId, updateBicycleDetails, {new: true });
+       res.json(updateBicycle);
+     }else{    
+       const updateBicycleDetails = { ...req.body, image: req.file.path };
+       const updateBicycle = await Bicycle.findByIdAndUpdate(
         bicycleId,
         updateBicycleDetails,
-
         { new: true }
       );
       res.json(updateBicycle);
+    }
     } catch (error) {
       console.log("Error updating bicycle: ", error);
     }

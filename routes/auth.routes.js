@@ -48,7 +48,8 @@ router.post('/login', async (req, res, next) => {
                         algorithm: 'HS256',
                     }
                 )
-                res.status(200).json({ token: authToken });
+                console.log(foundUser[0])
+                res.status(200).json({ token: authToken, user: foundUser[0] });
             } else {
                 res.status(403).json('Password incorrect')
             }
@@ -77,14 +78,15 @@ router.put("/update/:userId", isAuthenticated, async (req, res, next) => {
     const updatedPassword = req.body.password;
     const updatedPhoneNumber = req.body.phoneNumber;
     const updatedLocation = req.body.location;
-
+console.log(req.payload)
+console.log()
     try {
         await User.findByIdAndUpdate(
             req.payload.user._id,
             { username: updatedUsername, email: updatedEmail, password: updatedPassword, phoneNumber: updatedPhoneNumber, location: updatedLocation }, { new: true }
         );
         const updatedUser = await User.findById(req.payload.user._id);
-        res.status(200).json({ message: "Profile updated successfully!" });
+        res.status(200).json({ message: "Profile updated successfully!", updatedUser });
     } catch (error) {
         console.log("Error updating user info: ", error);
         res.status(500).json({ errorMessage: "Error updating user info" });

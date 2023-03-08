@@ -22,11 +22,9 @@ const userSchema = new Schema(
     },
     location: {
       type: String,
-      required: true
     },
     phoneNumber: {
       type: Number,
-      required: true
     },
     image: {
       type: String,

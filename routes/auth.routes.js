@@ -12,7 +12,7 @@ router.post('/signup', async (req, res, next) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         const salt = bcrypt.genSaltSync(13);
         const passwordHash = bcrypt.hashSync(req.body.password, salt);
-        if (email === '' || passwordHash === '' || username === ''){
+        if (email === '' || passwordHash === '' || username === '') {
             res.status(400).json({ errorMessage: "Provide username, email and password" });
             return;
         }
@@ -21,8 +21,8 @@ router.post('/signup', async (req, res, next) => {
             return;
         }
         if (req.body.password.length < 5) {
-            res.status(400).json({errorMessage: 'Password too short'})
-        } 
+            res.status(400).json({ errorMessage: 'Password too short' })
+        }
         await User.create({ username: username, passwordHash: passwordHash, email: email });
         res.status(201).json({ message: "User created successfully" });
     } catch (error) {
@@ -69,7 +69,8 @@ router.post('/verify', isAuthenticated, (req, res, next) => {
 
 
 // Update profile route
-router.put("/update", isAuthenticated, async (req, res, next) => {
+
+router.put("/update/:userId", isAuthenticated, async (req, res, next) => {
     console.log(req.body);
     const updatedUsername = req.body.username;
     const updatedEmail = req.body.email;
@@ -82,6 +83,7 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
             req.payload.user._id,
             { username: updatedUsername, email: updatedEmail, password: updatedPassword, phoneNumber: updatedPhoneNumber, location: updatedLocation }, { new: true }
         );
+        const updatedUser = await User.findById(req.payload.user._id);
         res.status(200).json({ message: "Profile updated successfully!" });
     } catch (error) {
         console.log("Error updating user info: ", error);
@@ -91,9 +93,9 @@ router.put("/update", isAuthenticated, async (req, res, next) => {
 
 // Delete profile route
 
-router.delete("/profile", isAuthenticated, async (req, res, next) => {
+router.delete("/profile/:userId", isAuthenticated, async (req, res, next) => {
     try {
-        await User.findByIdAndDelete(req.user._id);
+        await User.findByIdAndDelete(req.params.userId);
         res.json({ message: "Profile deleted successfully!" });
         res.status(200).json({ errorMessage: "Profile deleted sucessfully" });
     } catch (error) {

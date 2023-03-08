@@ -68,6 +68,13 @@ router.post('/verify', isAuthenticated, (req, res, next) => {
     }
 })
 
+router.get("/update", isAuthenticated, async (req, res, next) => {
+    let currentUser = await User.findById(
+        req.payload.user._id)
+    console.log(currentUser)
+    res.status(200).json(currentUser);
+}
+)
 
 // Update profile route
 
@@ -78,15 +85,25 @@ router.put("/update/:userId", isAuthenticated, async (req, res, next) => {
     const updatedPassword = req.body.password;
     const updatedPhoneNumber = req.body.phoneNumber;
     const updatedLocation = req.body.location;
-console.log(req.payload)
-console.log()
+    console.log(req.payload)
+    console.log()
     try {
         await User.findByIdAndUpdate(
             req.payload.user._id,
             { username: updatedUsername, email: updatedEmail, password: updatedPassword, phoneNumber: updatedPhoneNumber, location: updatedLocation }, { new: true }
         );
         const updatedUser = await User.findById(req.payload.user._id);
-        res.status(200).json({ message: "Profile updated successfully!", updatedUser });
+        const authToken = jwt.sign(
+            {
+                expiresIn: '6h',
+                user: updatedUser // Put the data of your user in there
+            },
+            process.env.TOKEN_SECRET,
+            {
+                algorithm: 'HS256',
+            }
+        )
+        res.status(200).json({ message: "Profile updated successfully!", token: authToken, user: updatedUser });
     } catch (error) {
         console.log("Error updating user info: ", error);
         res.status(500).json({ errorMessage: "Error updating user info" });

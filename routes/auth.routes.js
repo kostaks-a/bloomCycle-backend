@@ -40,7 +40,7 @@ router.post('/login', async (req, res, next) => {
 
                 const authToken = jwt.sign(
                     {
-                        expiresIn: '6h',
+                        expiresIn: 86400 ,
                         user: foundUser[0] // Put the data of your user in there
                     },
                     process.env.TOKEN_SECRET,

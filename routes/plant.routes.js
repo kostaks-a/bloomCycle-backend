@@ -119,9 +119,10 @@ router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
       console.log("Error unsaving ad: ", error);
     }})
 
+    
 // Get personal ads
 
-    router.get("/personalAds/:userId" , async (req, res, next) => {
+    router.get("/personalAds/:userId" ,isAuthenticated , async (req, res, next) => {
       const userId = req.params.userId;
      // console.log('owner:' + req.payload.user._id);
       try {
@@ -134,7 +135,7 @@ router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
       
     });
 
-    router.get("/savedAds/:userId" , async (req, res, next) => {
+    router.get("/savedAds/:userId" ,isAuthenticated, async (req, res, next) => {
       const userId = req.params.userId;
      // console.log('owner:' + req.payload.user._id);
       try {

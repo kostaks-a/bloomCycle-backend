@@ -49,6 +49,7 @@ router.post(
   }
 );
 
+
 //Update Bicycle
 router.put(
   "/update/:bicycleId",
@@ -89,12 +90,13 @@ router.get("/:bikeId/save", isAuthenticated, async (req, res) => {
    const bikeId = req.params.bikeId
    const user = await User.findById(userId)
    if (!user.savedBikeAds.includes(bikeId)) {
-   const userUpdate = await User.findByIdAndUpdate(userId, { $push: { savedBikeAds : bikeId } }, {new: true})
-   console.log(userUpdate)
-   console.log(`Ad saved`)
-   res.json(`Ad saved successfully`)
+      const userUpdate = await User.findByIdAndUpdate(userId, { $push: { savedBikeAds : bikeId } }, {new: true})
+      console.log(userUpdate)
+      console.log(`Ad saved`)
+      res.json(`Ad saved successfully`)
   }else {
-    res.json("Plant already saved")
+    console.log('bicycle already saved')
+    res.json("bicycle already saved")
   }
   } catch (error) {
     console.log("Error saving ad: ", error);
@@ -119,7 +121,7 @@ router.get("/:bikeId/save", isAuthenticated, async (req, res) => {
 
 // Get personal ads
 
-router.get("/personalAds/:userId" ,  async (req, res, next) => {
+router.get("/personalAds/:userId" , isAuthenticated, async (req, res, next) => {
   const userId = req.params.userId;
   // console.log('owner:' + req.payload.user._id);
   try {
@@ -131,7 +133,7 @@ router.get("/personalAds/:userId" ,  async (req, res, next) => {
   }
 });
 
-router.get("/savedAds/:userId" ,  async (req, res, next) => {
+router.get("/savedAds/:userId" , isAuthenticated, async (req, res, next) => {
   const userId = req.params.userId;
   // console.log('owner:' + req.payload.user._id);
   try {

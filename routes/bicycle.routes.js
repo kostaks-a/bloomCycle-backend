@@ -55,6 +55,7 @@ router.put(
   "/update/:bicycleId",
   uploader.single("imageUrl"),
   async (req, res, next) => {
+    //console.log(req.file.path)
     try {
       const bicycleId = req.params.bicycleId;
       const updateBicycleDetails = { ...req.body, image: req.file.path };

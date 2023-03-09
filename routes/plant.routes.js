@@ -33,6 +33,7 @@ router.post(
   isAuthenticated,
   async (req, res, next) => {
     console.log("file is: ", req.file);
+    try {
     if (!req.file) {
       res.status(200).json({ message: "no image" });
     } else {
@@ -45,7 +46,11 @@ router.post(
       console.log(newPlant);
       res.status(200).json(newPlant);
     }
+    } catch (error) {
+      res.status(400).json(error);
+    }
   }
+
 );
 
 
@@ -140,8 +145,9 @@ router.get("/delete/:plantId", isAuthenticated, async (req, res, next) => {
       } catch (error) {
         console.log("Error fetching personal plant ads: ", error);
       }
-      
-    });
+      });
+
+
 
     router.get("/savedAds/:userId" ,isAuthenticated, async (req, res, next) => {
       const userId = req.params.userId;

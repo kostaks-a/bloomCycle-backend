@@ -76,6 +76,17 @@ router.get("/update", isAuthenticated, async (req, res, next) => {
 }
 )
 
+
+router.get("/:username", async (req, res, next) => {
+    console.log(req.params.username)
+    const username = req.params.username;
+    const profile = await User.findOne({username : username})
+    const data = {image: profile.image, id: profile._id , username: profile.username , location : profile.location , number: profile.number}
+    console.log(data)
+    res.status(200).json(data);
+}
+)
+
 // Update profile route
 
 router.put("/update/:userId", isAuthenticated, async (req, res, next) => {
@@ -112,7 +123,7 @@ router.put("/update/:userId", isAuthenticated, async (req, res, next) => {
 
 // Delete profile route
 
-router.delete("/profile/:userId", isAuthenticated, async (req, res, next) => {
+router.delete("/profile/:userId", isAuthenticated , async (req, res, next) => {
     try {
         await User.findByIdAndDelete(req.params.userId);
         res.json({ message: "Profile deleted successfully!" });

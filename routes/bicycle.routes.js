@@ -8,7 +8,7 @@ const uploader = require("../utils/cloudinary");
 router.get("/allbicycles" , isAuthenticated, async (req, res, next) => {
   //console.log(req.payload.user._id)
   try {
-    const findAllBicycles = await Bicycle.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username');
+    const findAllBicycles = await Bicycle.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username' , 'image');
     //console.log(findAllBicycles)
     res.json(findAllBicycles);
   } catch (error) {

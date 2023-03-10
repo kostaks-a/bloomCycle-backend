@@ -7,7 +7,7 @@ const uploader = require("../utils/cloudinary");
 // Get all plants
 router.get("/allplants", isAuthenticated , async (req, res, next) => {
   try {
-    const findAllPlants = await Plant.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username' , 'image');
+    const findAllPlants = await Plant.find({ owner: {$ne:req.payload.user._id}}).populate('owner' , 'username' );
       //console.log(findAllPlants);
     res.json(findAllPlants);
   } catch (error) {
